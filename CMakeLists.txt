@@ -19,6 +19,7 @@ else()
 endif()
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 find_package(glaze REQUIRED CONFIG)
 
@@ -41,3 +42,30 @@ if(ENABLE_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+install(TARGETS budouxpp EXPORT budouxppTargets)
+install(DIRECTORY budoux/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/budoux)
+
+configure_package_config_file(
+    cmake/budouxppConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/budouxppConfig.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/budouxpp"
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/budouxppConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMinorVersion
+)
+
+install(EXPORT budouxppTargets
+    FILE budouxppTargets.cmake
+    NAMESPACE budouxpp::
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/budouxpp"
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/budouxppConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/budouxppConfigVersion.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/budouxpp"
+)
