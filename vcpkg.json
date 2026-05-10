@@ -1,0 +1,19 @@
+{
+  "name": "budouxpp",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "glaze",
+    "catch2"
+  ],
+  "default-features": [
+    "example"
+  ],
+  "features": {
+    "example": {
+      "description": "Build the example executable and enable its logging dependency.",
+      "dependencies": [
+        "quill"
+      ]
+    }
+  }
+}
