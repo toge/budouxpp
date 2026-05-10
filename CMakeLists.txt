@@ -1,8 +1,22 @@
 cmake_minimum_required(VERSION 3.25)
-project(budouxpp VERSION 0.1.0 LANGUAGES CXX)
 
 option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_EXAMPLE "Build example executable" ON)
+
+set(_budouxpp_vcpkg_manifest_features "")
+if(ENABLE_TESTS)
+    list(APPEND _budouxpp_vcpkg_manifest_features "tests")
+endif()
+if(ENABLE_EXAMPLE)
+    list(APPEND _budouxpp_vcpkg_manifest_features "example")
+endif()
+set(VCPKG_MANIFEST_NO_DEFAULT_FEATURES ON CACHE BOOL
+    "Resolve vcpkg dependencies only from CMake-selected manifest features" FORCE)
+set(VCPKG_MANIFEST_FEATURES "${_budouxpp_vcpkg_manifest_features}" CACHE STRING
+    "vcpkg manifest features required by the current CMake options" FORCE)
+unset(_budouxpp_vcpkg_manifest_features)
+
+project(budouxpp VERSION 0.1.0 LANGUAGES CXX)
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++26" COMPILER_SUPPORTS_CXX26)

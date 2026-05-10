@@ -2,13 +2,15 @@
   "name": "budouxpp",
   "version-string": "0.1.0",
   "dependencies": [
-    "glaze",
-    "catch2"
-  ],
-  "default-features": [
-    "example"
+    "glaze"
   ],
   "features": {
+    "tests": {
+      "description": "Build the test target and enable its test-only dependency.",
+      "dependencies": [
+        "catch2"
+      ]
+    },
     "example": {
       "description": "Build the example executable and enable its logging dependency.",
       "dependencies": [
