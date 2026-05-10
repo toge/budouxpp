@@ -1,20 +1,22 @@
 # budouxpp
 
-budouxpp は、[BudouX](https://github.com/google/budoux) 互換のモデルを使って UTF-8 文字列の改行候補を遅延分割できる C++ ライブラリです。公開される CMake のライブラリ名 / パッケージ名は `budouxpp` ですが、C++ API の名前空間はこれまで通り `budoux` のままです。`budoux::parse(model)` は `std::string_view` の range を返すので、標準の `std::views` とそのまま合成できます。
+[BudouX](https://github.com/google/budoux) 互換のモデルを使ってUTF-8文字列の改行候補を遅延分割できる C++ ライブラリです。
+公開されるCMake のライブラリ名 / パッケージ名は `budouxpp` ですが、C++ API の名前空間は `budoux` です。
+`budoux::parse(model)` は `std::string_view` のrangeを返すので、標準の`std::views`とそのまま合成できます。
 
-このリポジトリの `budoux::DefaultModel` は、BudouX 公式リポジトリで配布されている `models/ja.json` と同じキー構成の JSON を読み込めます。
+このリポジトリの`budoux::DefaultModel`は、BudouX公式リポジトリで配布されている`models/ja.json`と同じキー構成のJSONを読み込めます。
 
 ## 特徴
 
-- ヘッダオンリーで利用できます
+- ヘッダオンリーライブラリです
 - 入力文字列をコピーせず `std::string_view` でセグメントを返します
 - `input | budoux::parse(model) | std::views::filter(...)` のように Range パイプラインへ自然に組み込めます
-- モデルの JSON 読み込みは Glaze と組み合わせてそのまま扱えます
+- モデルのJSONファイルの読み込みはGlazeと組み合わせてそのまま扱えます
 
 ## 必要環境
 
 - C++20 以降（ライブラリ利用時の最小要件）
-- Glaze
+- [Glaze](https://github.com/stephenberry/glaze)
 
 ## 導入方法
 
@@ -25,7 +27,8 @@ find_package(budouxpp CONFIG REQUIRED)
 target_link_libraries(your_target PRIVATE budouxpp::budouxpp)
 ```
 
-このリポジトリをそのまま組み込む埋め込み利用も引き続き可能です。その場合は、CMake から公開ライブラリ名 `budouxpp` を直接リンクしてください。
+このリポジトリをそのまま組み込むこともできます。
+その場合はCMake から公開ライブラリ名 `budouxpp` を直接リンクしてください。
 
 ```cmake
 add_subdirectory(path/to/budouxpp)
@@ -87,12 +90,10 @@ for (auto const piece : filtered) {
 ## モデルについて
 
 - `budoux::DefaultModel` は `UW1` 〜 `UW6`, `BW1` 〜 `BW3`, `TW1` 〜 `TW4` を持つ BudouX 互換 JSON を想定しています
+- 本格的なモデルについては、ライセンスを確認の上[BudouX公式リポジトリ](https://github.com/google/budoux)からモデルファイル(ja.json)を入手してください。
 - この実装は UTF-8 を前提にしています
 - セグメントは入力文字列を参照する `std::string_view` なので、走査中は元文字列を保持してください
 
-## 開発用コマンド
+## ライセンス
 
-```sh
-./build.sh
-./test.sh
-```
+MIT License
