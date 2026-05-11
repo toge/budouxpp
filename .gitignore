@@ -56,3 +56,4 @@ test.sh
 
 images*
 vcpkg_installed
+data
