@@ -5,9 +5,9 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 
 #include "glaze/glaze.hpp"
+#include "ankerl/unordered_dense.h"
 
 namespace budoux {
 
@@ -24,7 +24,7 @@ struct transparent_string_hash {
    */
   [[nodiscard]]
   auto operator()(std::string_view value) const noexcept {
-    return std::hash<std::string_view>{}(value);
+    return ankerl::unordered_dense::hash<std::string_view>{}(value);
   }
 
   /**
@@ -52,7 +52,7 @@ struct transparent_string_hash {
  * @brief UTF-8 の特徴量キーから重みを引くためのテーブル
  */
 using score_map =
-  std::unordered_map<std::string, int, transparent_string_hash, std::equal_to<>>;
+  ankerl::unordered_dense::map<std::string, int, transparent_string_hash, std::equal_to<>>;
 
 /**
  * @brief BudouX の全特徴量グループを参照で束ねたビュー

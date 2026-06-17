@@ -2,7 +2,8 @@
   "name": "budouxpp",
   "version-string": "0.1.0",
   "dependencies": [
-    "glaze"
+    "glaze",
+    "unordered-dense"
   ],
   "features": {
     "tests": {
@@ -16,6 +17,10 @@
       "dependencies": [
         "quill"
       ]
+    },
+    "benchmark": {
+      "description": "Build the benchmark executable.",
+      "dependencies": []
     }
   }
 }

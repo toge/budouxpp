@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 
 option(ENABLE_TESTS "Enable tests" ON)
 option(ENABLE_EXAMPLE "Build example executable" ON)
+option(ENABLE_BENCHMARK "Build benchmark executable" OFF)
 
 set(_budouxpp_vcpkg_manifest_features "")
 if(ENABLE_TESTS)
@@ -9,6 +10,9 @@ if(ENABLE_TESTS)
 endif()
 if(ENABLE_EXAMPLE)
     list(APPEND _budouxpp_vcpkg_manifest_features "example")
+endif()
+if(ENABLE_BENCHMARK)
+    list(APPEND _budouxpp_vcpkg_manifest_features "benchmark")
 endif()
 set(VCPKG_MANIFEST_NO_DEFAULT_FEATURES ON CACHE BOOL
     "Resolve vcpkg dependencies only from CMake-selected manifest features" FORCE)
@@ -36,13 +40,14 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 find_package(glaze REQUIRED CONFIG)
+find_package(unordered_dense REQUIRED CONFIG)
 
 add_library(budouxpp INTERFACE)
 target_include_directories(budouxpp INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(budouxpp INTERFACE glaze::glaze)
+target_link_libraries(budouxpp INTERFACE glaze::glaze unordered_dense::unordered_dense)
 target_compile_features(budouxpp INTERFACE cxx_std_20)
 
 if(ENABLE_EXAMPLE)
@@ -55,6 +60,10 @@ endif()
 if(ENABLE_TESTS)
     enable_testing()
     add_subdirectory(test)
+endif()
+
+if(ENABLE_BENCHMARK)
+    add_subdirectory(benchmark)
 endif()
 
 install(TARGETS budouxpp EXPORT budouxppTargets)

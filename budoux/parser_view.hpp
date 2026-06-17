@@ -235,14 +235,21 @@ public:
 
   private:
     /**
+     * @brief 論理インデックスを物理インデックスに変換する
+     */
+    [[nodiscard]] static constexpr auto idx(std::size_t i) noexcept -> std::size_t {
+      return i & 7U;
+    }
+
+    /**
      * @brief 最初の境界判定に使うスライディングウィンドウを初期化する
      */
     void initialize_window() noexcept {
       auto offset = std::size_t{0};
-      window_[2] = detail::decode_next(parent_->input_, offset);
-      window_[3] = detail::decode_next(parent_->input_, offset);
-      window_[4] = detail::decode_next(parent_->input_, offset);
-      window_[5] = detail::decode_next(parent_->input_, offset);
+      window_[idx(2)] = detail::decode_next(parent_->input_, offset);
+      window_[idx(3)] = detail::decode_next(parent_->input_, offset);
+      window_[idx(4)] = detail::decode_next(parent_->input_, offset);
+      window_[idx(5)] = detail::decode_next(parent_->input_, offset);
       next_decode_offset_ = offset;
     }
 
@@ -250,12 +257,8 @@ public:
      * @brief 境界候補を 1 コードポイント分だけ進める
      */
     void advance_boundary() noexcept {
-      window_[0] = window_[1];
-      window_[1] = window_[2];
-      window_[2] = window_[3];
-      window_[3] = window_[4];
-      window_[4] = window_[5];
-      window_[5] = detail::decode_next(parent_->input_, next_decode_offset_);
+      window_[idx(head_ + 6)] = detail::decode_next(parent_->input_, next_decode_offset_);
+      head_ = idx(head_ + 1);
     }
 
     /**
@@ -266,26 +269,34 @@ public:
       auto const scores = parent_->model_->scores();
       auto score = parent_->base_score_;
 
+      auto const h = head_;
+      auto const w0 = window_[idx(h)];
+      auto const w1 = window_[idx(h + 1)];
+      auto const w2 = window_[idx(h + 2)];
+      auto const w3 = window_[idx(h + 3)];
+      auto const w4 = window_[idx(h + 4)];
+      auto const w5 = window_[idx(h + 5)];
+
       // 単文字特徴量の寄与を加算する
-      score += detail::lookup(scores.UW1, window_[0]);
-      score += detail::lookup(scores.UW2, window_[1]);
-      score += detail::lookup(scores.UW3, window_[2]);
-      score += detail::lookup(scores.UW4, window_[3]);
-      score += detail::lookup(scores.UW5, window_[4]);
-      score += detail::lookup(scores.UW6, window_[5]);
+      score += detail::lookup(scores.UW1, w0);
+      score += detail::lookup(scores.UW2, w1);
+      score += detail::lookup(scores.UW3, w2);
+      score += detail::lookup(scores.UW4, w3);
+      score += detail::lookup(scores.UW5, w4);
+      score += detail::lookup(scores.UW6, w5);
 
       // 連続する文字列特徴量の寄与を加算する
-      score += detail::lookup(scores.BW1, detail::merge(window_[1], window_[2]));
-      score += detail::lookup(scores.BW2, detail::merge(window_[2], window_[3]));
-      score += detail::lookup(scores.BW3, detail::merge(window_[3], window_[4]));
+      score += detail::lookup(scores.BW1, detail::merge(w1, w2));
+      score += detail::lookup(scores.BW2, detail::merge(w2, w3));
+      score += detail::lookup(scores.BW3, detail::merge(w3, w4));
       score += detail::lookup(scores.TW1,
-                              detail::merge(window_[0], window_[1], window_[2]));
+                              detail::merge(w0, w1, w2));
       score += detail::lookup(scores.TW2,
-                              detail::merge(window_[1], window_[2], window_[3]));
+                              detail::merge(w1, w2, w3));
       score += detail::lookup(scores.TW3,
-                              detail::merge(window_[2], window_[3], window_[4]));
+                              detail::merge(w2, w3, w4));
       score += detail::lookup(scores.TW4,
-                              detail::merge(window_[3], window_[4], window_[5]));
+                              detail::merge(w3, w4, w5));
       return score >= 0.0;
     }
 
@@ -294,20 +305,21 @@ public:
      */
     void locate_next_boundary() noexcept {
       // 判定対象の中心文字がない場合はこれ以上セグメントを作らない
-      if (window_[2].empty()) {
+      if (window_[idx(head_ + 2)].empty()) {
         finished_ = true;
         return;
       }
 
       // 右隣がない場合は残り全体が最後のセグメント
-      if (window_[3].empty()) {
+      if (window_[idx(head_ + 3)].empty()) {
         segment_end_ = parent_->input_.size();
         return;
       }
 
       // 境界候補を 1 文字ずつ進めながら分割点を探す
-      while (!window_[3].empty()) {
-        segment_end_ = static_cast<std::size_t>(window_[3].data() - parent_->input_.data());
+      while (!window_[idx(head_ + 3)].empty()) {
+        segment_end_ = static_cast<std::size_t>(
+          window_[idx(head_ + 3)].data() - parent_->input_.data());
         if (should_split()) {
           return;
         }
@@ -317,7 +329,8 @@ public:
     }
 
     parser_view const* parent_{nullptr};
-    std::array<std::string_view, 6> window_{};
+    std::array<std::string_view, 8> window_{};
+    std::size_t head_{0};
     std::size_t next_decode_offset_{0};
     std::size_t segment_start_{0};
     std::size_t segment_end_{0};
