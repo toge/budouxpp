@@ -14,9 +14,7 @@
     },
     "example": {
       "description": "Build the example executable and enable its logging dependency.",
-      "dependencies": [
-        "quill"
-      ]
+      "dependencies": []
     },
     "benchmark": {
       "description": "Build the benchmark executable.",

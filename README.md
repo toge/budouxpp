@@ -17,6 +17,7 @@
 
 - C++20 以降（ライブラリ利用時の最小要件）
 - [Glaze](https://github.com/stephenberry/glaze)
+- Catch2 (テスト用)
 
 ## 導入方法
 

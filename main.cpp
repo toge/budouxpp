@@ -1,28 +1,10 @@
 #include <filesystem>
-#include <print>
+#include <iostream>
 #include <ranges>
 #include <string_view>
 
 #include "budoux/model.hpp"
 #include "budoux/parser_view.hpp"
-#include "quill/Backend.h"
-#include "quill/Frontend.h"
-#include "quill/LogMacros.h"
-#include "quill/Logger.h"
-#include "quill/sinks/ConsoleSink.h"
-
-/**
- * @brief Builds the default console logger used by the demo.
- * @return Quill logger pointer.
- */
-[[nodiscard]] auto make_logger() -> quill::Logger* {
-  quill::Backend::start();
-  auto console_sink =
-    quill::Frontend::create_or_get_sink<quill::ConsoleSink>("console");
-  auto* logger =
-    quill::Frontend::create_or_get_logger("example", std::move(console_sink));
-  return logger;
-}
 
 /**
  * @brief Prints every segment in a range.
@@ -32,9 +14,9 @@
  */
 template <std::ranges::input_range Range>
 void print_segments(std::string_view title, Range&& range) {
-  std::print("{}\n", title);
+  std::cout << title << "\n";
   for (auto const segment : range) {
-    std::print("  [{}]\n", segment);
+    std::cout << "  [" << segment << "]\n";
   }
 }
 
@@ -45,10 +27,8 @@ void print_segments(std::string_view title, Range&& range) {
  * @return Process exit code.
  */
 auto main(int argc, char const* argv[]) -> int {
-  auto* logger = make_logger();
-
   if (argc < 3) {
-    LOG_ERROR(logger, "Usage: {} <model.json> <input>", argv[0]);
+    std::cerr << "Usage: " << argv[0] << " <model_path> <input_text>\n";
     return 1;
   }
 
@@ -58,11 +38,11 @@ auto main(int argc, char const* argv[]) -> int {
   budoux::DefaultModel model{};
   auto const ec = glz::read_file_json(model, model_path.string(), std::string{});
   if (ec) {
-    LOG_ERROR(logger, "Failed to read model: {}", model_path.string());
+    std::cerr << "Failed to load model: " << model_path.string() << "\n";
     return 1;
   }
 
-  LOG_INFO(logger, "Loaded model from {}", model_path.string());
+  std::cout << "Loaded model from " << model_path.string() << "\n";
   print_segments("All segments:", input | budoux::parse(model));
   print_segments(
     "Composed view (filter + take):",
