@@ -108,7 +108,7 @@ jobs:
         # clang 19 : Fedora 41
         # clang 18 : Fedora 40
         # clang 17 : Fedora 39
-        fedora_version: ["44", "43", "42", "41", "40", "39"]
+        fedora_version: ["44", "43", "42", "41", "40"]
 
     container: fedora:${{ matrix.fedora_version }}
 

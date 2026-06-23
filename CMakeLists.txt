@@ -34,12 +34,12 @@ target_include_directories(budouxpp INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_link_libraries(budouxpp INTERFACE glaze::glaze unordered_dense::unordered_dense)
-target_compile_features(budouxpp INTERFACE cxx_std_20)
+target_compile_features(budouxpp INTERFACE cxx_std_23)
 
 if(BUILD_EXAMPLE)
     add_executable(example main.cpp)
     target_link_libraries(example PRIVATE budouxpp)
-    target_compile_features(example PRIVATE cxx_std_20)
+    target_compile_features(example PRIVATE cxx_std_23)
 endif()
 
 if(BUILD_TEST)
